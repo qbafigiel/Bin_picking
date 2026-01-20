@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.dll
+*.lib
+*.exe
+*.zip
+env/
+.vscode/
