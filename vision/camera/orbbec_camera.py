@@ -2,7 +2,7 @@
 
 import time
 from pyorbbecsdk import *
-from camera.frame_utils import color_frame_to_bgr
+from .frame_utils import color_frame_to_bgr
 
 
 class OrbbecCamera:
@@ -41,7 +41,7 @@ class OrbbecCamera:
         if color_frame is None:
             return None
 
-        color_image = frame_to_bgr_image(color_frame)
+        color_image = color_frame_to_bgr(color_frame)
         if color_image is None:
             return None
 
