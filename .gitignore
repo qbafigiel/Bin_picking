@@ -1,10 +1,16 @@
+# VS Code
+.vscode/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.dll
-*.lib
-*.exe
-*.zip
-env/
-.vscode/
+
+# logi, tmp
+*.log
+*.tmp
+
+# inne
+.DS_Store
+Thumbs.db
