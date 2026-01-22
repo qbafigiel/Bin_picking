@@ -1,42 +1,49 @@
+# vision/camera/orbbec_camera.py
+
 import time
 import numpy as np
-from pyorbbecsdk import *
+from pyorbbecsdk import Pipeline, Config, Context, OBSensorType, OBFormat, OBError
 from .frame_utils import color_frame_to_bgr
 
+
 class OrbbecCamera:
-    def __init__(self, width=640, fps=30):
+    def __init__(self, width=640, height=480, fps=30):
+        """
+        Driver Orbbec Camera.
+        width, height, fps - parametry streamu RGB.
+        """
         self.width = width
+        self.height = height
         self.fps = fps
         self.pipeline = Pipeline()
         self.config = Config()
         self.started = False
-        self.ctx = Context()  # kontekst SDK przypisany do obiektu
+        self.ctx = Context()  # kontekst SDK
 
     def start(self):
         """
-        Uruchamia pipeline kamery i stream RGB.
-        Zwraca True jeśli kamera działa, False jeśli brak urządzenia.
+        Startuje pipeline kamery.
         """
-        device_list = self.ctx.query_devices()
-        if device_list.get_count() == 0:
-            print("❌ No Orbbec camera detected! Check USB connection.")
-            return False
-
         profile_list = self.pipeline.get_stream_profile_list(OBSensorType.COLOR_SENSOR)
+
         try:
-            color_profile = profile_list.get_video_stream_profile(self.width, 0, OBFormat.RGB, self.fps)
+            color_profile = profile_list.get_video_stream_profile(
+                self.width, self.height, OBFormat.RGB, self.fps
+            )
         except OBError:
             color_profile = profile_list.get_default_video_stream_profile()
 
         self.config.enable_stream(color_profile)
         self.pipeline.start(self.config)
         self.started = True
-        print("✅ Camera started successfully.")
-        return True
 
     def get_frame(self, timeout_ms=100):
+        """
+        Pobiera jedną klatkę RGB.
+        Zwraca słownik {"rgb": np.array, "timestamp": float}
+        """
         if not self.started:
-            return None
+            raise RuntimeError("Camera not started")
 
         frames = self.pipeline.wait_for_frames(timeout_ms)
         if frames is None:
@@ -53,6 +60,9 @@ class OrbbecCamera:
         return {"rgb": color_image, "timestamp": time.time()}
 
     def stop(self):
+        """
+        Zatrzymuje pipeline kamery.
+        """
         if self.started:
             self.pipeline.stop()
             self.started = False
