@@ -12,7 +12,7 @@ from camera.orbbec_camera import OrbbecCamera
 from camera.orbbec_camera_detection import detect_cameras
 
 
-def main(width=424, height=240, fps=60):
+def main(width=640, height=480, fps=30):
     # === Sprawdzamy, czy są podłączone kamery ===
     devices = detect_cameras()
     if not devices:
