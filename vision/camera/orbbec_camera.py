@@ -14,22 +14,29 @@ class OrbbecCamera:
         self.started = False
 
     def start(self):
-        profile_list = self.pipeline.get_stream_profile_list(
-            OBSensorType.COLOR_SENSOR
-        )
+        """
+        Uruchamia pipeline kamery i stream RGB.
+        """
+        # Pobranie listy profili streamów dla sensora RGB
+        profile_list = self.pipeline.get_stream_profile_list(OBSensorType.COLOR_SENSOR)
 
         try:
-            color_profile = profile_list.get_video_stream_profile(
-                self.width, 0, OBFormat.RGB, self.fps
-            )
+            # Staramy się wybrać profil o zadanej szerokości i fps
+            color_profile = profile_list.get_video_stream_profile(self.width, 0, OBFormat.RGB, self.fps)
         except OBError:
+            # W razie problemu wybieramy profil domyślny
             color_profile = profile_list.get_default_video_stream_profile()
 
+        # Włączamy strumień i startujemy pipeline
         self.config.enable_stream(color_profile)
         self.pipeline.start(self.config)
         self.started = True
 
     def get_frame(self, timeout_ms=100):
+        """
+        Pobiera jedną klatkę z kamery.
+        Zwraca słownik: {"rgb": <numpy array>, "timestamp": <czas>}
+        """
         if not self.started:
             raise RuntimeError("Camera not started")
 
@@ -51,6 +58,9 @@ class OrbbecCamera:
         }
 
     def stop(self):
+        """
+        Zatrzymuje pipeline kamery.
+        """
         if self.started:
             self.pipeline.stop()
             self.started = False
